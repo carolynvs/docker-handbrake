@@ -8,6 +8,7 @@
 #
 # The second parameter is the full path to the converted video (the output).
 #
+set -euo pipefail
 
 CONVERSION_STATUS=$1
 CONVERTED_FILE="$2"
@@ -16,13 +17,10 @@ echo "post-conversion: Status = $CONVERSION_STATUS"
 echo "post-conversion: File = $CONVERTED_FILE"
 
 if [ "$CONVERSION_STATUS" -eq 0 ]; then
-    # Successful conversion.
-
-    # TODO: Do something useful.
-    :
+    echo "Uploading successful conversion!"
+    mv $CONVERTED_FILE $PLEX_LIBRARY_PATH
+    curl http://$PLEX_SERVER:32400/library/sections/$PLEX_LIBRARY/refresh?X-Plex-Token=$PLEX_TOKEN
 else
-    # Failed conversion.
-
-    # TODO: Do something useful.
-    :
+    echo "Removing failed conversion..."
+    rm $CONVERTED_FILE
 fi

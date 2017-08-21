@@ -95,6 +95,28 @@ process_video() {
         return
     fi
 
+    # Claim the video
+    echo "Attemping to claim $video..."
+    claimdir="/watch/claimed"
+    mkdir -p $claimdir &> /dev/null
+    claim="$claimdir/$(basename "$video")"
+    # Claim the file so that other watchers don't also process it
+    mv "$video" "$claim"
+
+    # Check if claim was successful
+    if [ ! -f "$claim" ]; then
+        log "Claim failed for '$video'. Skipping."
+        return
+    fi
+    echo "Claimed $video"
+
+    # Move the video to the local disk
+    echo "Moving $video into the container..."
+    tmpdir="/tmp/autoVideoConverter"
+    mkdir -p $tmpdir &> /dev/null
+    video="$tmpdir/$(basename "$video")"
+    mv "$claim" "$video"
+
     # Set the output directory.
     case "${AUTOMATED_CONVERSION_OUTPUT_SUBDIR:-UNSET}" in
         UNSET)
@@ -197,18 +219,20 @@ while true; do
         # This is to make sure we catch, on the next round, changes occuring
         # during the processing.
         WATCHDIR_HASH_update
-        log "Processing watch folder..."  
+        log "Processing watch folder..."
         FILELIST="$(mktemp)"
-        find /watch/ -follow -type f -not -path '*/\.*' | \
+        find /watch/ -not -path "/watch/claimed/*" -type f | \
+            grep -v "/\." | \
             sed 's|/VIDEO_TS/.*$|/VIDEO_TS|g' | \
             sed 's|/BDMV/.*$|/BDMV|g' | \
             uniq > "$FILELIST"
         while read -u 3 FILE
         do
+            echo "Found $FILE. Processing..."
             process_video "$FILE"
         done 3<"$FILELIST"
         rm "$FILELIST"
-        log "Watch folder processing terminated."
+        log "Watching for new videos..."
     fi
 
     sleep 5
