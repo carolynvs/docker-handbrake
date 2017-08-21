@@ -5,10 +5,7 @@ default:
 	echo "Choose the form of the destructor"
 
 build:
-	docker build -t ${IMG}:presets-${HANDBRAKE_VERSION} \
-	  -t ${IMG}:presets -f handbrake/Dockerfile.presets handbrake
-	docker build -t ${IMG}:tivo-${HANDBRAKE_VERSION} \
-	  -t ${IMG}:latest -f handbrake/Dockerfile.tivo handbrake
+	docker build -t ${IMG}:${HANDBRAKE_VERSION} -t ${IMG}:latest .
 
 push: build
 	docker push ${IMG}:latest

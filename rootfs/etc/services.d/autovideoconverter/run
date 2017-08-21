@@ -97,7 +97,7 @@ process_video() {
 
     # Claim the video
     echo "Attemping to claim $video..."
-    claimdir="/watch/claimed"
+    claimdir="/watch/_claimed"
     mkdir -p $claimdir &> /dev/null
     claim="$claimdir/$(basename "$video")"
     # Claim the file so that other watchers don't also process it
@@ -221,8 +221,7 @@ while true; do
         WATCHDIR_HASH_update
         log "Processing watch folder..."
         FILELIST="$(mktemp)"
-        find /watch/ -not -path "/watch/claimed/*" -type f | \
-            grep -v "/\." | \
+        find /watch -not -path "./watch/[_.]*" -type f | \
             sed 's|/VIDEO_TS/.*$|/VIDEO_TS|g' | \
             sed 's|/BDMV/.*$|/BDMV|g' | \
             uniq > "$FILELIST"

@@ -21,6 +21,6 @@ if [ "$CONVERSION_STATUS" -eq 0 ]; then
     mv $CONVERTED_FILE $PLEX_LIBRARY_PATH
     curl http://$PLEX_SERVER:32400/library/sections/$PLEX_LIBRARY/refresh?X-Plex-Token=$PLEX_TOKEN
 else
-    echo "Removing failed conversion..."
-    rm $CONVERTED_FILE
+    echo "Unclaiming the failed conversion..."
+    mv $CONVERTED_FILE /watch/_failed/
 fi
